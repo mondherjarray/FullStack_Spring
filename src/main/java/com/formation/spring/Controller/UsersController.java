@@ -28,22 +28,22 @@ public class UsersController {
 
         return "Api Get User is called" ;
     }
-    @PostMapping()
-    public UserResponse createUser (UserRequest userRequest){
+    @PostMapping
+    public UserResponse createUser(@RequestBody UserRequest userRequest){
 
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(userRequest, userDTO);
+        UserDTO userDto = new UserDTO();
+        BeanUtils.copyProperties(userRequest, userDto);
 
-        UserEntity userCheck = userRepository.findByEmail(userDTO.getEmail());
-        if(userCheck != null ) throw  new RuntimeException("User is Exist");
+        UserEntity checkUser = userRepository.findByEmail(userDto.getEmail());
+        if(checkUser != null) throw new RuntimeException("User already exists");
 
-        userDTO.setUserId(utils.generateStringId(32));
-        userDTO.setEncryptPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+        userDto.setUserId(utils.generateStringId(30));
+        userDto.setEncryptPassword(bCryptPasswordEncoder.encode(userRequest.getPassword()));
+        UserDTO createUser = userService.createUser(userDto);
 
+        UserResponse userResponse = new UserResponse();
+        BeanUtils.copyProperties(createUser, userResponse);
 
-        UserDTO createUser = userService.createUser(userDTO);
-     UserResponse userResponse = new UserResponse();
-     BeanUtils.copyProperties(createUser, userResponse);
-        return userResponse ;
+        return userResponse;
     }
 }
